@@ -94,7 +94,7 @@ def main():
                 spot.move_by_velocity_control(0, v_y=0.1, cmd_duration=0)
             if (coords[0] < 0):
                 # move the robot to the left
-                spot.move_by_velocity_control(v_x=0, cmd_duration= -0.1)
+                spot.move_by_velocity_control(v_x=0, cmd_duration= 0.1)
             if (coords[1] > 0):
                 # move the robot up
                 spot.move_by_velocity_control(v_x=0.1, cmd_duration=0)
