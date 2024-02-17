@@ -86,14 +86,22 @@ def main():
             print(f"QR code is {coords[0]} mm to the right and {coords[1]} mm below the center of the image") 
             # move the robot to the object
             # move the robot to the object
-            if coords[0] > 0:
-                spot.move_by_velocity_control(v_x=0.1, v_y=0, v_rot=0, cmd_duration=0.5)
-            else:
-                spot.move_by_velocity_control(v_x=-0.1, v_y=0, v_rot=0, cmd_duration=0.5)
-            if coords[1] > 0:
-                spot.move_by_velocity_control(v_x=0, v_y=0.1, v_rot=0, cmd_duration=0.5)
-            else:
-                spot.move_by_velocity_control(v_x=0, v_y=-0.1, v_rot=0, cmd_duration=0.5)
+            ## move the robot to the object
+            # by minimizing the distance to the center of the image
+            # and moving forward or backward to the object
+            if (coords[0] > 0):
+                # move the robot to the right
+                spot.move_by_velocity_control(0, v_y=0.1, cmd_duration=0)
+            if (coords[0] < 0):
+                # move the robot to the left
+                spot.move_by_velocity_control(v_x=0, cmd_duration= -0.1)
+            if (coords[1] > 0):
+                # move the robot up
+                spot.move_by_velocity_control(v_x=0.1, cmd_duration=0)
+            if (coords[1] < 0):
+                # move the robot down
+                spot.move_by_velocity_control(v_x=-0.1, cmd_duration=0)
+                
             time.sleep(1)
             # Capture image
             camera_capture = cv2.VideoCapture(0)
