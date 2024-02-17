@@ -51,13 +51,16 @@ def main():
     timer = int(time.time())
     while (coords[0] == 0 and coords[1] == 0):
         # keep trying again for five seconds
+
         if (int(time.time()) - timer > 5):
             print("No QR code found")
             break
+        camera_capture = cv2.VideoCapture(0)
         rv, image = camera_capture.read()
         # add image processing here to detect object
         coords = detect_object(image)
         camera_capture.release()
+
         
         
 
