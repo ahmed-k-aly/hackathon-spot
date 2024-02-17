@@ -45,8 +45,21 @@ def main():
     camera_capture = cv2.VideoCapture(0)
     rv, image = camera_capture.read()
     # add image processing here to detect object
+    
     coords = detect_object(image)
     camera_capture.release()
+    timer = int(time.time())
+    while (coords[0] != 0 and coords[1] != 0):
+        # keep trying again for five seconds
+        if (int(time.time()) - timer > 5):
+            print("No QR code found")
+            break
+        rv, image = camera_capture.read()
+        # add image processing here to detect object
+        coords = detect_object(image)
+        camera_capture.release()
+        
+        
 
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
