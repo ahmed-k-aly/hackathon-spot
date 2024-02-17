@@ -38,14 +38,8 @@ def detect_object(image):
 
 
 def main():
+    print(cv2.__version__)
     #example of using micro and speakers
-    print("Start recording audio")
-    sample_name = "aaaa.wav"
-    cmd = f'arecord -vv --format=cd --device={os.environ["AUDIO_INPUT_DEVICE"]} -r 48000 --duration=10 -c 1 {sample_name}'
-    print(cmd)
-    os.system(cmd)
-    print("Playing sound")
-    os.system(f"ffplay -nodisp -autoexit -loglevel quiet {sample_name}")
     
     # Capture image
     camera_capture = cv2.VideoCapture(0)
@@ -58,11 +52,7 @@ def main():
     # and to return lease + sit down at the end
     with SpotController(username=SPOT_USERNAME, password=SPOT_PASSWORD, robot_ip=ROBOT_IP) as spot:
         # Move head to specified positions with intermediate time.sleep
-        spot.move_head_in_points(yaws=[0.2, 0],
-                                 pitches=[0.3, 0],
-                                 rolls=[0.4, 0],
-                                 sleep_after_point_reached=1)
-        time.sleep(3)
+
         # make the head level and look straight
         spot.move_head_in_points(yaws=[0, 0],
                                  pitches=[0, 0],
@@ -73,8 +63,8 @@ def main():
         while (coords[0] != 0 and coords[1] != 0):
             # move head up and down to signal that it is searching for the object
             spot.move_head_in_points(yaws=[0, 0],
-                                     pitches=[0.3, -0.3],
-                                     rolls=[0, 0],
+                                     pitches=[0.0, 0.0],
+                                     rolls=[0.3, -0.3],
                                      sleep_after_point_reached=1)
             time.sleep(1)
             print(f"QR code is {coords[0]} mm to the right and {coords[1]} mm below the center of the image") 
@@ -101,8 +91,8 @@ def main():
 
         # move head left and right to signal that it hasn't found the object
         spot.move_head_in_points(yaws=[0.2, -0.2],
-                                 pitches=[0.3, 0.3],
-                                 rolls=[0.4, 0.4],
+                                 pitches=[0.0, 0.0],
+                                 rolls=[0.0, 0.0],
                                  sleep_after_point_reached=1)
         # save image locally 
         # describe image in ascii
