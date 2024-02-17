@@ -21,7 +21,7 @@ def detect_object(image):
     if retval:
         # calculate distance to the qr code
         print("QR code found!")
-        print("its content is: " + decoded_info)
+        print("its content is: " + str(decoded_info))
         print("its dimensions are: " + str(points))
         image_dimensions = image.shape
         image_center = (image_dimensions[1] / 2, image_dimensions[0] / 2)
@@ -33,6 +33,7 @@ def detect_object(image):
     else:
         print("No QR code found")
         return (0,0)
+
     
 
 
@@ -62,8 +63,21 @@ def main():
                                  rolls=[0.4, 0],
                                  sleep_after_point_reached=1)
         time.sleep(3)
+        # make the head level and look straight
+        spot.move_head_in_points(yaws=[0, 0],
+                                 pitches=[0, 0],
+                                 rolls=[0, 0],
+                                 sleep_after_point_reached=1)
+        time.sleep(1)
 
         while (coords[0] != 0 and coords[1] != 0):
+            # move head up and down to signal that it is searching for the object
+            spot.move_head_in_points(yaws=[0, 0],
+                                     pitches=[0.3, -0.3],
+                                     rolls=[0, 0],
+                                     sleep_after_point_reached=1)
+            time.sleep(1)
+            print(f"QR code is {coords[0]} mm to the right and {coords[1]} mm below the center of the image") 
             # move the robot to the object
             # move the robot to the object
             if coords[0] > 0:
@@ -74,24 +88,25 @@ def main():
                 spot.move_by_velocity_control(v_x=0, v_y=0.1, v_rot=0, cmd_duration=0.5)
             else:
                 spot.move_by_velocity_control(v_x=0, v_y=-0.1, v_rot=0, cmd_duration=0.5)
-            time.sleep(0.5)
+            time.sleep(1)
             # Capture image
             camera_capture = cv2.VideoCapture(0)
             rv, image = camera_capture.read()
             # add image processing here to detect object
             coords = detect_object(image)
             camera_capture.release()
+
         
         time.sleep(2)
 
-
-        # Make Spot to move by goal_x meters forward and goal_y meters left
-        spot.move_to_goal(goal_x=0.5, goal_y=0)
-        time.sleep(3)
-
-        # Control Spot by velocity in m/s (or in rad/s for rotation)
-        spot.move_by_velocity_control(v_x=-0.3, v_y=0, v_rot=0, cmd_duration=2)
-        time.sleep(3)
+        # move head left and right to signal that it hasn't found the object
+        spot.move_head_in_points(yaws=[0.2, -0.2],
+                                 pitches=[0.3, 0.3],
+                                 rolls=[0.4, 0.4],
+                                 sleep_after_point_reached=1)
+        # save image locally 
+        # describe image in ascii
+        cv2.imwrite("image.jpg", image)
 
 
 if __name__ == '__main__':
