@@ -125,10 +125,8 @@ def search(spot):
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "doNothing":
-            spot.move_head_in_points(yaws=[0, 0],
-                                     pitches=[0, 0],
-                                     rolls=[0, 0],
-                                     sleep_after_point_reached=search_after)
+            ## do nothing
+            pass
         rv, image = camera_capture.read()
         camera_capture.release()
 
@@ -205,10 +203,7 @@ def main():
                 print("Object is away from  the robot")
                 print(f"Distance to object is {distance} cm")
             # move forward
-                spot.move_to_goal(goal_x=distance/100, goal_y=0)
-            
-                
-            time.sleep(1)
+                spot.move_to_goal(goal_x=distance/100, goal_y=0)            
             # Capture image
             distance = try_to_detect(spot)
         
