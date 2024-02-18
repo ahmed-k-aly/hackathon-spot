@@ -5,6 +5,7 @@ from spot_controller import SpotController
 ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
+TIMEOUT_LIMIT = 60 # IN SECONDS
 import cv2
 import numpy as np
 
@@ -74,7 +75,7 @@ def search(spot):
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
     possibleDirections = ["left", "right", "up", "down", "doNothing"]
     
-
+    LOOP_TIMEOUT = 20  # in seconds
     
     # map angles and directions to yaws and pitches
     timer = int(time.time())
@@ -83,12 +84,10 @@ def search(spot):
     # The robot should start by looking straight ahead
     frontier.append((0, "doNothing"))
     while frontier:
-        if (int(time.time()) - timer) > 10: # 10 seconds
+        if (int(time.time()) - timer) > LOOP_TIMEOUT: # 10 seconds
             print("Time out")
             return -1
         camera_capture = cv2.VideoCapture(0)
-        rv, image = camera_capture.read()
-        camera_capture.release()
         # Pop the last element from the frontier
         current = frontier.pop()
         # move the head to the current state
@@ -116,6 +115,9 @@ def search(spot):
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=1)
+        rv, image = camera_capture.read()
+        camera_capture.release()
+
             
         # Check if the current state is the goal state
         distance = detected_qr_code(image)
@@ -160,7 +162,7 @@ def main():
         distance = try_to_detect(spot)
 
         while (distance > 0):
-            if (int(time.time()) - timer) > 40: # 40 seconds in total
+            if (int(time.time()) - timer) > TIMEOUT_LIMIT : 
                 print("Time out at outer loop")
                 return -1
             # move head up and down to signal that it is searching for the object
