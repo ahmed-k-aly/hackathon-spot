@@ -5,7 +5,7 @@ from spot_controller import SpotController
 ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
-TIMEOUT_LIMIT = 60 # IN SECONDS
+TIMEOUT_LIMIT = 90 # IN SECONDS
 MAX_DISTANCE = 5 # IN CM 
 import cv2
 import numpy as np
@@ -98,25 +98,25 @@ def search(spot):
         current = frontier.pop()
         # move the head to the current state
         if current[1] == "left":
-            print("Moving head left")
+            say_something("Searching left...")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[0.3, -0.3],
                                      sleep_after_point_reached=1)
         elif current[1] == "right":
-            print("Moving head right")
+            say_something("Are you right there? haha")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[-0.3, 0.3],
                                      sleep_after_point_reached=1)
         elif current[1] == "up":
-            print("Moving head up")
+            say_something("Are you up there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.3, -0.3],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=1)
         elif current[1] == "down":
-            print("Moving head down")
+            say_something("Are you down there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
@@ -190,7 +190,7 @@ def main():
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
                 # move back 
-                say_something("Retreating")
+                say_something("Target is {distance} cm away, RETREATING!")
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
                 say_something("Advancing towards target")
