@@ -1,14 +1,13 @@
 import os
 import time
 from spot_controller import SpotController
-import scipy.io.wavfile as wavfile
 
 ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 90 # IN SECONDS
 MAX_DISTANCE = 5 # IN CM 
-LOOP_TIMEOUT = 20  # in seconds
+LOOP_TIMEOUT = 30  # in seconds
 import cv2
 import numpy as np
 from gtts import gTTS
@@ -82,7 +81,7 @@ def search(spot):
     """
     # The robot should only rotate its head in increments of 30 degrees to allow continuous scanning of the environment. Angles are in radians.
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
-    possibleDirections = ["left", "right", "up", "down", "doNothing"]
+    possibleDirections = ["left", "right", "up", "down"]
     
     
     # map angles and directions to yaws and pitches
@@ -93,7 +92,7 @@ def search(spot):
     frontier.append((0, "doNothing"))
     say_something("Searching ")
     while frontier:
-        if (int(time.time()) - timer) > LOOP_TIMEOUT: # 10 seconds
+        if (int(time.time()) - timer) > LOOP_TIMEOUT: 
             print("Time out")
             return -1
         camera_capture = cv2.VideoCapture(0)
@@ -109,31 +108,31 @@ def search(spot):
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[0.3, -0.3],
-                                     sleep_after_point_reached=1)
+                                     sleep_after_point_reached=0.5)
         elif current[1] == "right":
             say_something("Are you right there? haha")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[-0.3, 0.3],
-                                     sleep_after_point_reached=1)
+                                     sleep_after_point_reached=0.5)
         elif current[1] == "up":
             say_something("Are you up there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.3, -0.3],
                                      rolls=[0.0, 0.0],
-                                     sleep_after_point_reached=1)
+                                     sleep_after_point_reached=0.5)
         elif current[1] == "down":
             say_something("Are you down there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
-                                     sleep_after_point_reached=1)
+                                     sleep_after_point_reached=0.5)
         elif current[1] == "doNothing":
-            say_something("I am not moving")
+            say_something("Looking straight ahead...")
             spot.move_head_in_points(yaws=[0, 0],
                                      pitches=[0, 0],
                                      rolls=[0, 0],
-                                     sleep_after_point_reached=1)
+                                     sleep_after_point_reached=0.5)
         rv, image = camera_capture.read()
         camera_capture.release()
 
@@ -168,66 +167,7 @@ def say_something(text):
     os.system(f"ffplay -nodisp -autoexit -loglevel quiet welcome.mp3")
     
 
-def listen_to_microphone():
-
-    say_something("Listening to the environment")
-    
-    os.system("arecord -D plughw:1,0 -f cd -c1 -r 48000 -d 5 -t wav -V mono -v listen.wav") 
-    os.system("ffmpeg -i listen.wav -acodec pcm_s16le -ac 1 -ar 16000 listen_converted.wav")
-    print("Recording Finished")
-
-    direction = estimate_audio_spatial_location("listen_converted.wav")
-    print(f"Sound is coming from the {direction}")
-    
-    os.system("rm listen.wav")    
-
-
-
-def estimate_audio_spatial_location(wav_filename):
-    """
-    Simulate estimating the spatial location of an audio source from a stereo .wav file.
-    Note: This function assumes a stereo recording. Real spatial estimation would require
-    detailed analysis beyond this simple example.
-
-    Parameters:
-    - wav_filename: str, path to the stereo .wav file.
-
-    Returns:
-    - location: str, simulated location of the sound source.
-    """
-    # Load the stereo .wav file
-    sample_rate, data = wavfile.read(wav_filename)
-    
-    # Check if the audio is stereo
-    if data.shape[1] != 2:
-        raise ValueError("Audio file must be stereo for spatial estimation.")
-    
-    left_channel, right_channel = data[:, 0], data[:, 1]
-    
-    # Placeholder for a real spatial analysis
-    # For demonstration, compare the average intensity of the left and right channels
-    left_intensity = np.mean(np.abs(left_channel))
-    right_intensity = np.mean(np.abs(right_channel))
-    
-    # Determine a simple left/right location based on intensity
-    if left_intensity > right_intensity:
-        location = "left"
-    elif right_intensity > left_intensity:
-        location = "right"
-    else:
-        location = "center"
-    say_something(f"Sound is coming from the {location}")
-    
-    return location
-
-
-
 def main():
-    try:
-        listen_to_microphone()
-    except:
-        print("Error listening to the environment")
-        pass
     # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
     print("Playing sound")
     say_something("I am ready to start")
@@ -249,6 +189,7 @@ def main():
         while (distance > 0):
             if (int(time.time()) - timer) > TIMEOUT_LIMIT : 
                 print("Time out at outer loop")
+                say_something("Time is Up! Returning to base.")
                 return -1
             # move head up and down to signal that it is searching for the object
             # spot.move_head_in_points(yaws=[0, 0],
