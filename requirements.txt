@@ -1,2 +1,1 @@
-gTTS
-gTTS2
+gTTS~=2.5.1
