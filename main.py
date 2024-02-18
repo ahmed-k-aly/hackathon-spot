@@ -121,6 +121,12 @@ def search(spot):
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=1)
+        elif current[1] == "doNothing":
+            say_something("I am not moving")
+            spot.move_head_in_points(yaws=[0, 0],
+                                     pitches=[0, 0],
+                                     rolls=[0, 0],
+                                     sleep_after_point_reached=1)
         rv, image = camera_capture.read()
         camera_capture.release()
 
