@@ -6,7 +6,7 @@ ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 90 # IN SECONDS
-MAX_DISTANCE = 20 # IN CM 
+MAX_DISTANCE = 18 # IN CM 
 LOOP_TIMEOUT = 30  # in seconds
 import cv2
 import numpy as np
@@ -80,7 +80,7 @@ def search(spot):
         spot (SpotController): an instance of the SpotController class to control the robot's movement. 
     """
     # The robot should only rotate its head in increments of 30 degrees to allow continuous scanning of the environment. Angles are in radians.
-    possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
+    possibleAngles = [0, 0.523599, 1.0472, 1.5708, -0.523599, -1.0472, -1.5708 ]
     possibleDirections = ["left", "right", "up", "down"]
     
     search_after = 0.1
@@ -206,21 +206,22 @@ def main():
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
                 # move back 
-                say_something("RETREATING")
+                say_something("Target is too close. RETREATING")
                 # can only move 1m at a time
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
-                say_something("Advancing towards target")
+                say_something("Found you! Advancing towards target")
                 
                 print("Object is away from  the robot")
                 print(f"Distance to object is {distance} cm")
             # move forward
-                spot.move_to_goal(goal_x=distance/100, goal_y=0)            
+                spot.move_to_goal(goal_x=((1-distance/100)%100), goal_y=0)            
             # Capture image
             distance = try_to_detect(spot)
         
         time.sleep(2)
 
+        say_something("Search Terminated. Returning to base.")
         # move head left and right to signal that it hasn't found the object
         spot.move_head_in_points(yaws=[0.2, -0.2],
                                  pitches=[0.0, 0.0],
