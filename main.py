@@ -103,12 +103,12 @@ def main():
                                      rolls=[0.3, -0.3],
                                      sleep_after_point_reached=1)
             time.sleep(1)
-            print(f"QR code is {coords[0]} mm to the right and {coords[1]} mm below the center of the image") 
             if (distance < 15):
                 print("Object is close enough to the robot")
                 break
             else:
                 print("Object is away from  the robot")
+                print(f"Distance to object is {distance} cm")
             # move forward
                 spot.move_to_goal(goal_x=distance/100, goal_y=0)
             
