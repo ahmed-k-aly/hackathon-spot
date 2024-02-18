@@ -91,6 +91,10 @@ def search(spot):
             print("Time out")
             return -1
         camera_capture = cv2.VideoCapture(0)
+        # set camera at full hd
+        camera_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        camera_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        
         # Pop the last element from the frontier
         current = frontier.pop()
         # move the head to the current state
