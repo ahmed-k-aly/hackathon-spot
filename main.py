@@ -68,7 +68,7 @@ def try_to_detect():
     timer = int(time.time())
     while (distance == -1):
         # keep trying again for five seconds
-
+        print("Trying to detect QR code...")
         if (int(time.time()) - timer > 5):
             print("No QR code found")
             break
@@ -83,10 +83,6 @@ def main():
     print(cv2.__version__)
     #example of using micro and speakers
     distance = try_to_detect()
-    
-
-        
-        
 
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
