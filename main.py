@@ -9,8 +9,7 @@ TIMEOUT_LIMIT = 60 # IN SECONDS
 MAX_DISTANCE = 15 # IN CM 
 import cv2
 import numpy as np
-import gTTS
-
+from gtts import gTTS
 
 def estimate_distance(points, real_qr_size=21, focal_length=50, sensor_size=24, image_size=1080):
     """

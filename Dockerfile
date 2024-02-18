@@ -14,7 +14,6 @@ RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
 
 COPY requirements.txt requirements.txt
-RUN python3.8 -m pip install gTTS
 RUN python3.8 -m pip install -r requirements.txt
 COPY . .
 
