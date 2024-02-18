@@ -6,8 +6,10 @@ ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 60 # IN SECONDS
+MAX_DISTANCE = 15 # IN CM 
 import cv2
 import numpy as np
+import gTTS
 
 
 def estimate_distance(points, real_qr_size=21, focal_length=50, sensor_size=24, image_size=1080):
@@ -83,6 +85,7 @@ def search(spot):
     explored = []
     # The robot should start by looking straight ahead
     frontier.append((0, "doNothing"))
+    say_something("Searching ")
     while frontier:
         if (int(time.time()) - timer) > LOOP_TIMEOUT: # 10 seconds
             print("Time out")
@@ -123,6 +126,7 @@ def search(spot):
         distance = detected_qr_code(image)
         if distance != -1:
             print("QR code found")
+            say_something("Target Acquired")
             return distance
         # Add the current state to the explored set
         explored.append(current)
@@ -142,11 +146,20 @@ def detected_qr_code(image):
     distance = detect_object(image)
     return distance
 
+def say_something(text):
+    myObj = gTTS(text=text, lang="en", slow=False)
+    myObj.save("welcome.mp3")
+    os.system(f"ffplay -nodisp -autoexit -loglevel quiet welcome.mp3")
+    
 
 def main():
     print(cv2.__version__)
-    #example of using micro and speakers
+    
 
+    # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
+    print("Playing sound")
+    say_something("I am ready to start")
+    
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
     with SpotController(username=SPOT_USERNAME, password=SPOT_PASSWORD, robot_ip=ROBOT_IP) as spot:
@@ -171,12 +184,14 @@ def main():
                                      rolls=[0.3, -0.3],
                                      sleep_after_point_reached=1)
             time.sleep(1)
-            if (distance < 25):
+            if (distance < MAX_DISTANCE):
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
                 # move back 
+                say_something("Retreating")
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
+                say_something("Advancing towards target")
                 print("Object is away from  the robot")
                 print(f"Distance to object is {distance} cm")
             # move forward
