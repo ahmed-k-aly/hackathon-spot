@@ -208,7 +208,7 @@ def main():
                 # move back 
                 say_something("Target is too close. RETREATING")
                 # can only move 1m at a time
-                spot.move_to_goal(goal_x=-(1-distance/100)%100, goal_y=0)
+                spot.move_to_goal(goal_x=(-distance/100), goal_y=0)
             else:
                 say_something("Found you! Advancing towards target")
                 
