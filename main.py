@@ -178,6 +178,7 @@ def listen_to_microphone():
     direction = estimate_audio_spatial_location("listen.wav")
     print(f"Sound is coming from the {direction}")
     
+    os.system("rm listen.wav")    
 
 
 
