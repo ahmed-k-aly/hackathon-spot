@@ -6,7 +6,7 @@ ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 90 # IN SECONDS
-MAX_DISTANCE = 9 # IN CM 
+MAX_DISTANCE = 20 # IN CM 
 LOOP_TIMEOUT = 30  # in seconds
 import cv2
 import numpy as np
@@ -83,7 +83,7 @@ def search(spot):
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
     possibleDirections = ["left", "right", "up", "down"]
     
-    search_after = 0.2
+    search_after = 0.1
     
     # map angles and directions to yaws and pitches
     timer = int(time.time())
@@ -106,23 +106,23 @@ def search(spot):
         # move the head to the current state
         if current[1] == "left":
             # rolls should be in radians based on the angle
-            spot.move_head_in_points(yaws=[current[0], current[0]],
+            spot.move_head_in_points(yaws=[current[0]/3.14, current[0]/3.14],
                                      pitches=[0.0, 0.0],
                                      rolls=[0.3, -0.3],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "right":
-            spot.move_head_in_points(yaws=[current[0], current[0]],
+            spot.move_head_in_points(yaws=[current[0]/3.14, current[0]/3.14],
                                      pitches=[0.0, 0.0],
                                      rolls=[-0.3, 0.3],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "up":
             spot.move_head_in_points(yaws=[0,0],
-                                     pitches=[current[0]/2,current[0]/2],
+                                     pitches=[current[0]/3.14,current[0]/3.14],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "down":
             spot.move_head_in_points(yaws=[0,0],
-                                     pitches=[current[0]/2, current[0]/2],
+                                     pitches=[current[0]/3.14, current[0]/3.14],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "doNothing":
@@ -168,6 +168,7 @@ def detected_qr_code(image):
     return distance
 
 def say_something(text):
+    # make the voice deeper
     myObj = gTTS(text=text, lang="en", slow=False)
     myObj.save("welcome.mp3")
     os.system(f"ffplay -nodisp -autoexit -loglevel quiet welcome.mp3")
@@ -205,12 +206,10 @@ def main():
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
                 # move back 
-                strings = f"Target is {int(distance)} cm away, RETREATING!"
-                say_something(strings)
+                say_something("RETREATING")
                 # can only move 1m at a time
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
-                say_something("Target is {distance} cm away, Advancing!")
                 say_something("Advancing towards target")
                 
                 print("Object is away from  the robot")
