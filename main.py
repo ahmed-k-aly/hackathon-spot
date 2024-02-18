@@ -58,13 +58,6 @@ def detect_object(image):
         return -1
 
 def try_to_detect(spot):
-# Capture image
-    camera_capture = cv2.VideoCapture(0)
-    rv, image = camera_capture.read()
-    # add image processing here to detect object
-    
-    distance = detect_object(image)
-    camera_capture.release()
     print("Trying to detect QR code...")
         # search algorithm
     distance = search(spot)
@@ -90,7 +83,7 @@ def search(spot):
     # The robot should start by looking straight ahead
     frontier.append((0, "doNothing"))
     while frontier:
-        if (int(time.time()) - timer) > 30: # 30 seconds
+        if (int(time.time()) - timer) > 10: # 10 seconds
             print("Time out")
             return -1
         camera_capture = cv2.VideoCapture(0)
@@ -163,10 +156,13 @@ def main():
                                  sleep_after_point_reached=1)
         # Move head to specified positions with intermediate time.sleep
         time.sleep(1)
-        
+        timer = int(time.time())
         distance = try_to_detect(spot)
 
         while (distance > 0):
+            if (int(time.time()) - timer) > 40: # 40 seconds in total
+                print("Time out at outer loop")
+                return -1
             # move head up and down to signal that it is searching for the object
             spot.move_head_in_points(yaws=[0, 0],
                                      pitches=[0.0, 0.0],
@@ -187,7 +183,7 @@ def main():
                 
             time.sleep(1)
             # Capture image
-            distance = try_to_detect(spot,)
+            distance = try_to_detect(spot)
         
         time.sleep(2)
 
