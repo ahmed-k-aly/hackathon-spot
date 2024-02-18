@@ -224,8 +224,11 @@ def estimate_audio_spatial_location(wav_filename):
 
 
 def main():
-    listen_to_microphone()
-
+    try:
+        listen_to_microphone()
+    except:
+        print("Error listening to the environment")
+        pass
     # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
     print("Playing sound")
     say_something("I am ready to start")
