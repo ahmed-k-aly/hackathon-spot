@@ -172,7 +172,7 @@ def listen_to_microphone():
     say_something("Listening to the environment")
     
     os.system("arecord -D plughw:1,0 -f cd -c1 -r 48000 -d 5 -t wav -V mono -v listen.wav")
-    os.system("ffmpeg -i file.wav -acodec pcm_s16le -ac 1 -ar 16000 listen.wav")
+    os.system("ffmpeg -i listen.wav -acodec pcm_s16le -ac 1 -ar 16000 listen.wav")
     
 
     direction = estimate_audio_spatial_location("listen.wav")
