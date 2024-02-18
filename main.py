@@ -117,12 +117,12 @@ def search(spot):
                                      sleep_after_point_reached=search_after)
         elif current[1] == "up":
             spot.move_head_in_points(yaws=[0,0],
-                                     pitches=[current[0],current[0]],
+                                     pitches=[current[0]/2,current[0]/2],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "down":
             spot.move_head_in_points(yaws=[0,0],
-                                     pitches=[-0.3, 0.3],
+                                     pitches=[current[0]/2, current[0]/2],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "doNothing":
@@ -138,6 +138,17 @@ def search(spot):
             print("QR code found")
             say_something("Target Acquired")
             return distance
+        while (distance == -1):
+            # keep trying again for five seconds
+            print("Trying to detect QR code...")
+            if (int(time.time()) - timer > 5):
+                print("No QR code found")
+                break
+            camera_capture = cv2.VideoCapture(0)
+            rv, image = camera_capture.read()
+            # add image processing here to detect object
+            distance = detect_object(image)
+            camera_capture.release()
         # Add the current state to the explored set
         explored.append(current)
         # Generate the next states from the current state
@@ -194,7 +205,8 @@ def main():
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
                 # move back 
-                say_something("Target is {distance} cm away, RETREATING!")
+                strings = f"Target is {int(distance)} cm away, RETREATING!"
+                say_something(strings)
                 # can only move 1m at a time
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
