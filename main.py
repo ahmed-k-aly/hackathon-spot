@@ -83,6 +83,7 @@ def search(spot):
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
     possibleDirections = ["left", "right", "up", "down"]
     
+    search_after = 0.2
     
     # map angles and directions to yaws and pitches
     timer = int(time.time())
@@ -97,42 +98,37 @@ def search(spot):
             return -1
         camera_capture = cv2.VideoCapture(0)
         # set camera at full hd
-        camera_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        camera_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #camera_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #camera_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         
         # Pop the last element from the frontier
         current = frontier.pop()
         # move the head to the current state
         if current[1] == "left":
-            say_something("Searching left...")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[0.3, -0.3],
-                                     sleep_after_point_reached=0.5)
+                                     sleep_after_point_reached=search_after)
         elif current[1] == "right":
-            say_something("Are you right there? haha")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[-0.3, 0.3],
-                                     sleep_after_point_reached=0.5)
+                                     sleep_after_point_reached=search_after)
         elif current[1] == "up":
-            say_something("Are you up there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.3, -0.3],
                                      rolls=[0.0, 0.0],
-                                     sleep_after_point_reached=0.5)
+                                     sleep_after_point_reached=search_after)
         elif current[1] == "down":
-            say_something("Are you down there?")
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
-                                     sleep_after_point_reached=0.5)
+                                     sleep_after_point_reached=search_after)
         elif current[1] == "doNothing":
-            say_something("Looking straight ahead...")
             spot.move_head_in_points(yaws=[0, 0],
                                      pitches=[0, 0],
                                      rolls=[0, 0],
-                                     sleep_after_point_reached=0.5)
+                                     sleep_after_point_reached=search_after)
         rv, image = camera_capture.read()
         camera_capture.release()
 
@@ -169,8 +165,7 @@ def say_something(text):
 
 def main():
     # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
-    print("Playing sound")
-    say_something("I am ready to start")
+#    say_something("I am ready to start")
     
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
