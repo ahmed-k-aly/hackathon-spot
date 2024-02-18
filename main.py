@@ -1,15 +1,23 @@
 import os
 import time
 from spot_controller import SpotController
+import scipy.io.wavfile as wavfile
 
 ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 90 # IN SECONDS
 MAX_DISTANCE = 5 # IN CM 
+LOOP_TIMEOUT = 20  # in seconds
 import cv2
 import numpy as np
 from gtts import gTTS
+
+
+
+
+
+
 
 def estimate_distance(points, real_qr_size=21, focal_length=50, sensor_size=24, image_size=1080):
     """
@@ -45,7 +53,7 @@ def estimate_distance(points, real_qr_size=21, focal_length=50, sensor_size=24, 
 
 
 def detect_object(image):
-  
+      
     qcd = cv2.QRCodeDetector()
     retval, decoded_info, points, straight_qrcode = qcd.detectAndDecodeMulti(image)
 
@@ -76,7 +84,6 @@ def search(spot):
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
     possibleDirections = ["left", "right", "up", "down", "doNothing"]
     
-    LOOP_TIMEOUT = 20  # in seconds
     
     # map angles and directions to yaws and pitches
     timer = int(time.time())
@@ -130,7 +137,7 @@ def search(spot):
         rv, image = camera_capture.read()
         camera_capture.release()
 
-            
+
         # Check if the current state is the goal state
         distance = detected_qr_code(image)
         if distance != -1:
@@ -161,9 +168,61 @@ def say_something(text):
     os.system(f"ffplay -nodisp -autoexit -loglevel quiet welcome.mp3")
     
 
-def main():
-    print(cv2.__version__)
+def listen_to_microphone():
+    say_something("Listening to the environment")
     
+    os.system("arecord -D plughw:1,0 -f cd -c1 -r 48000 -d 5 -t wav -V mono -v file.wav")
+    os.system("ffmpeg -i file.wav -acodec pcm_s16le -ac 1 -ar 16000 file.wav")
+    
+
+    direction = estimate_audio_spatial_location("file.wav")
+    print(f"Sound is coming from the {direction}")
+    
+    os.system("rm file.wav")
+
+
+
+def estimate_audio_spatial_location(wav_filename):
+    """
+    Simulate estimating the spatial location of an audio source from a stereo .wav file.
+    Note: This function assumes a stereo recording. Real spatial estimation would require
+    detailed analysis beyond this simple example.
+
+    Parameters:
+    - wav_filename: str, path to the stereo .wav file.
+
+    Returns:
+    - location: str, simulated location of the sound source.
+    """
+    # Load the stereo .wav file
+    sample_rate, data = wavfile.read(wav_filename)
+    
+    # Check if the audio is stereo
+    if data.shape[1] != 2:
+        raise ValueError("Audio file must be stereo for spatial estimation.")
+    
+    left_channel, right_channel = data[:, 0], data[:, 1]
+    
+    # Placeholder for a real spatial analysis
+    # For demonstration, compare the average intensity of the left and right channels
+    left_intensity = np.mean(np.abs(left_channel))
+    right_intensity = np.mean(np.abs(right_channel))
+    
+    # Determine a simple left/right location based on intensity
+    if left_intensity > right_intensity:
+        location = "left"
+    elif right_intensity > left_intensity:
+        location = "right"
+    else:
+        location = "center"
+    say_something(f"Sound is coming from the {location}")
+    
+    return location
+
+
+
+def main():
+    listen_to_microphone()
 
     # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
     print("Playing sound")
