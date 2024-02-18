@@ -103,9 +103,11 @@ def main():
                                      rolls=[0.3, -0.3],
                                      sleep_after_point_reached=1)
             time.sleep(1)
-            if (distance < 15):
+            if (distance < 25):
                 print("Object is close enough to the robot")
-                break
+                print(f"Distance to object is {distance} cm")
+                # move back 
+                spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
                 print("Object is away from  the robot")
                 print(f"Distance to object is {distance} cm")
