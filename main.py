@@ -57,7 +57,7 @@ def detect_object(image):
         print("No QR code found")
         return -1
 
-def try_to_detect():
+def try_to_detect(spot):
 # Capture image
     camera_capture = cv2.VideoCapture(0)
     rv, image = camera_capture.read()
@@ -69,7 +69,9 @@ def try_to_detect():
     while (distance == -1):
         # keep trying again for five seconds
         print("Trying to detect QR code...")
-        if (int(time.time()) - timer > 5):
+        # search algorithm
+        search(spot)
+        if (int(time.time()) - timer > 7):
             print("No QR code found")
             break
         camera_capture = cv2.VideoCapture(0)
@@ -79,22 +81,97 @@ def try_to_detect():
         camera_capture.release()
     return distance
 
+
+def search(spot, image):
+    """A depth first search algorithm to search for the object in the environment by ONLY turning the head of the robot.
+
+    Args:
+        spot (SpotController): an instance of the SpotController class to control the robot's movement. 
+    """
+    # The robot should only rotate its head in increments of 30 degrees to allow continuous scanning of the environment. Angles are in radians.
+    possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
+    possibleDirections = ["left", "right", "up", "down", "doNothing"]
+    
+    
+    # map angles and directions to yaws and pitches
+    
+    frontier = []
+    explored = []
+    # The robot should start by looking straight ahead
+    frontier.append((0, "doNothing"))
+    while frontier:
+        # Pop the last element from the frontier
+        current = frontier.pop()
+        # move the head to the current state
+        if current[1] == "left":
+            print("Moving head left")
+            spot.move_head_in_points(yaws=[current[0], current[0]],
+                                     pitches=[0.0, 0.0],
+                                     rolls=[0.3, -0.3],
+                                     sleep_after_point_reached=1)
+        elif current[1] == "right":
+            print("Moving head right")
+            spot.move_head_in_points(yaws=[current[0], current[0]],
+                                     pitches=[0.0, 0.0],
+                                     rolls=[-0.3, 0.3],
+                                     sleep_after_point_reached=1)
+        elif current[1] == "up":
+            print("Moving head up")
+            spot.move_head_in_points(yaws=[current[0], current[0]],
+                                     pitches=[0.3, -0.3],
+                                     rolls=[0.0, 0.0],
+                                     sleep_after_point_reached=1)
+        elif current[1] == "down":
+            print("Moving head down")
+            spot.move_head_in_points(yaws=[current[0], current[0]],
+                                     pitches=[-0.3, 0.3],
+                                     rolls=[0.0, 0.0],
+                                     sleep_after_point_reached=1)
+            
+        # Check if the current state is the goal state
+        if detected_qr_code(image):
+            print("QR code found")
+            return True
+        # Add the current state to the explored set
+        explored.append(current)
+        # Generate the next states from the current state
+        for angle in possibleAngles:
+            for direction in possibleDirections:
+                nextYaw = current[0] + angle
+                if nextYaw > 3.14159:
+                    nextYaw = -3.14159
+                elif nextYaw < -3.14159:
+                    nextYaw = 3.14159
+                nextState = (nextYaw, direction)
+                if nextState not in explored and nextState not in frontier:
+                    frontier.append(nextState)
+    print("QR code not found")
+    return False
+
+        
+    
+def detected_qr_code(image):
+    distance = detect_object(image)
+    return distance != -1
+
+
 def main():
     print(cv2.__version__)
     #example of using micro and speakers
-    distance = try_to_detect()
 
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
     with SpotController(username=SPOT_USERNAME, password=SPOT_PASSWORD, robot_ip=ROBOT_IP) as spot:
-        # Move head to specified positions with intermediate time.sleep
 
         # make the head level and look straight
         spot.move_head_in_points(yaws=[0, 0],
                                  pitches=[0, 0],
                                  rolls=[0, 0],
                                  sleep_after_point_reached=1)
+        # Move head to specified positions with intermediate time.sleep
         time.sleep(1)
+        
+        distance = try_to_detect(spot)
 
         while (distance > 0):
             # move head up and down to signal that it is searching for the object
