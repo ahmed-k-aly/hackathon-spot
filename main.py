@@ -105,6 +105,7 @@ def search(spot):
         current = frontier.pop()
         # move the head to the current state
         if current[1] == "left":
+            # rolls should be in radians based on the angle
             spot.move_head_in_points(yaws=[current[0], current[0]],
                                      pitches=[0.0, 0.0],
                                      rolls=[0.3, -0.3],
@@ -115,12 +116,12 @@ def search(spot):
                                      rolls=[-0.3, 0.3],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "up":
-            spot.move_head_in_points(yaws=[current[0], current[0]],
-                                     pitches=[0.3, -0.3],
+            spot.move_head_in_points(yaws=[0,0],
+                                     pitches=[current[0],current[0]],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "down":
-            spot.move_head_in_points(yaws=[current[0], current[0]],
+            spot.move_head_in_points(yaws=[0,0],
                                      pitches=[-0.3, 0.3],
                                      rolls=[0.0, 0.0],
                                      sleep_after_point_reached=search_after)
