@@ -108,12 +108,12 @@ def search(spot):
             # rolls should be in radians based on the angle
             spot.move_head_in_points(yaws=[current[0]/3.14, current[0]/3.14],
                                      pitches=[0.0, 0.0],
-                                     rolls=[0.3, -0.3],
+                                     rolls=[0.15, -0.15],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "right":
             spot.move_head_in_points(yaws=[current[0]/3.14, current[0]/3.14],
                                      pitches=[0.0, 0.0],
-                                     rolls=[-0.3, 0.3],
+                                     rolls=[-0.15, 0.15],
                                      sleep_after_point_reached=search_after)
         elif current[1] == "up":
             spot.move_head_in_points(yaws=[0,0],
@@ -177,7 +177,7 @@ def say_something(text):
 def main():
     # USE GOOGLE TEXT TO SPEECH TO SAY "I AM READY TO START"
 #    say_something("I am ready to start")
-    
+    say_something("The hunt begins")
     # Use wrapper in context manager to lease control, turn on E-Stop, power on the robot and stand up at start
     # and to return lease + sit down at the end
     with SpotController(username=SPOT_USERNAME, password=SPOT_PASSWORD, robot_ip=ROBOT_IP) as spot:
@@ -208,7 +208,7 @@ def main():
                 # move back 
                 say_something("Target is too close. RETREATING")
                 # can only move 1m at a time
-                spot.move_to_goal(goal_x=-distance/100, goal_y=0)
+                spot.move_to_goal(goal_x=-(1-distance/100)%100, goal_y=0)
             else:
                 say_something("Found you! Advancing towards target")
                 
