@@ -6,7 +6,7 @@ ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 60 # IN SECONDS
-MAX_DISTANCE = 15 # IN CM 
+MAX_DISTANCE = 5 # IN CM 
 import cv2
 import numpy as np
 from gtts import gTTS
@@ -182,11 +182,10 @@ def main():
                 print("Time out at outer loop")
                 return -1
             # move head up and down to signal that it is searching for the object
-            spot.move_head_in_points(yaws=[0, 0],
-                                     pitches=[0.0, 0.0],
-                                     rolls=[0.3, -0.3],
-                                     sleep_after_point_reached=1)
-            time.sleep(1)
+            # spot.move_head_in_points(yaws=[0, 0],
+            #                          pitches=[0.0, 0.0],
+            #                          rolls=[0.3, -0.3],
+            #                          sleep_after_point_reached=1)
             if (distance < MAX_DISTANCE):
                 print("Object is close enough to the robot")
                 print(f"Distance to object is {distance} cm")
