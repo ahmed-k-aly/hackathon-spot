@@ -70,19 +70,17 @@ def try_to_detect(spot):
         # keep trying again for five seconds
         print("Trying to detect QR code...")
         # search algorithm
-        search(spot, image)
-        if (int(time.time()) - timer > 7):
+        distance = search(spot)
+        if (distance != -1):
+            return distance
+        if (int(time.time()) - timer > 20):
             print("No QR code found")
             break
-        camera_capture = cv2.VideoCapture(0)
-        rv, image = camera_capture.read()
         # add image processing here to detect object
-        distance = detect_object(image)
-        camera_capture.release()
-    return distance
+    return -1
 
 
-def search(spot, image):
+def search(spot):
     """A depth first search algorithm to search for the object in the environment by ONLY turning the head of the robot.
 
     Args:
@@ -92,6 +90,7 @@ def search(spot, image):
     possibleAngles = [0, 0.523599, 1.0472, 1.5708, 2.0944, 2.61799, 3.14159, -0.523599, -1.0472, -1.5708, -2.0944, -2.61799, -3.14159]
     possibleDirections = ["left", "right", "up", "down", "doNothing"]
     
+
     
     # map angles and directions to yaws and pitches
     
@@ -100,6 +99,9 @@ def search(spot, image):
     # The robot should start by looking straight ahead
     frontier.append((0, "doNothing"))
     while frontier:
+        camera_capture = cv2.VideoCapture(0)
+        rv, image = camera_capture.read()
+        camera_capture.release()
         # Pop the last element from the frontier
         current = frontier.pop()
         # move the head to the current state
@@ -137,14 +139,10 @@ def search(spot, image):
         # Generate the next states from the current state
         for angle in possibleAngles:
             for direction in possibleDirections:
-                nextYaw = current[0] + angle
-                if nextYaw > 3.14159:
-                    nextYaw = -3.14159
-                elif nextYaw < -3.14159:
-                    nextYaw = 3.14159
-                nextState = (nextYaw, direction)
-                if nextState not in explored and nextState not in frontier:
-                    frontier.append(nextState)
+                if (angle, direction) not in explored:
+                    frontier.append((angle, direction))
+
+               
     print("QR code not found")
     return False
 
