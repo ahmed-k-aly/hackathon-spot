@@ -70,7 +70,7 @@ def try_to_detect(spot):
         # keep trying again for five seconds
         print("Trying to detect QR code...")
         # search algorithm
-        search(spot)
+        search(spot, image)
         if (int(time.time()) - timer > 7):
             print("No QR code found")
             break
@@ -194,7 +194,7 @@ def main():
                 
             time.sleep(1)
             # Capture image
-            distance = try_to_detect()
+            distance = try_to_detect(spot,)
         
         time.sleep(2)
 
