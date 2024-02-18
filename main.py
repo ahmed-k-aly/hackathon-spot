@@ -6,7 +6,7 @@ ROBOT_IP = "10.0.0.3"#os.environ['ROBOT_IP']
 SPOT_USERNAME = "admin"#os.environ['SPOT_USERNAME']
 SPOT_PASSWORD = "2zqa8dgw7lor"#os.environ['SPOT_PASSWORD']
 TIMEOUT_LIMIT = 90 # IN SECONDS
-MAX_DISTANCE = 5 # IN CM 
+MAX_DISTANCE = 9 # IN CM 
 LOOP_TIMEOUT = 30  # in seconds
 import cv2
 import numpy as np
@@ -201,9 +201,12 @@ def main():
                 print(f"Distance to object is {distance} cm")
                 # move back 
                 say_something("Target is {distance} cm away, RETREATING!")
+                # can only move 1m at a time
                 spot.move_to_goal(goal_x=-distance/100, goal_y=0)
             else:
+                say_something("Target is {distance} cm away, Advancing!")
                 say_something("Advancing towards target")
+                
                 print("Object is away from  the robot")
                 print(f"Distance to object is {distance} cm")
             # move forward
